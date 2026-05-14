@@ -32,7 +32,11 @@ checksums_file="${dist_dir}/checksums.txt"
 
 pushd "$source_dir" >/dev/null
 
-perl -0pi -e 's/\.library\(\s*\n\s*name: "CombineSchedulers",\s*\n\s*targets: \["CombineSchedulers"\]\s*\n\s*\)/.library(name: "CombineSchedulers", type: .dynamic, targets: ["CombineSchedulers"])/g' Package.swift
+for manifest in Package.swift Package@swift-5.9.swift Package@swift-6.0.swift Package@swift-6.1.swift; do
+  if [[ -f "$manifest" ]]; then
+    perl -0pi -e 's/\.library\(\s*\n\s*name: "CombineSchedulers",\s*\n\s*targets: \["CombineSchedulers"\]\s*\n\s*\)/.library(name: "CombineSchedulers", type: .dynamic, targets: ["CombineSchedulers"])/g' "$manifest"
+  fi
+done
 
 for product in "${products[@]}"; do
   frameworks=()
