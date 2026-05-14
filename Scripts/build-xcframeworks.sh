@@ -6,6 +6,7 @@ release_tag="${2:-$upstream_ref}"
 upstream_url="${UPSTREAM_URL:-https://github.com/pointfreeco/combine-schedulers.git}"
 
 products=(CombineSchedulers)
+scheme="${SCHEME_NAME:-combine-schedulers}"
 platforms=(
   "ios|generic/platform=iOS"
   "ios-simulator|generic/platform=iOS Simulator"
@@ -46,7 +47,7 @@ for product in "${products[@]}"; do
     archive_path="${archive_dir}/${product}-${slug}.xcarchive"
 
     xcodebuild archive \
-      -scheme "$product" \
+      -scheme "$scheme" \
       -destination "$destination" \
       -archivePath "$archive_path" \
       -derivedDataPath "$derived_data_dir" \
@@ -55,7 +56,7 @@ for product in "${products[@]}"; do
       OTHER_SWIFT_FLAGS="-no-verify-emitted-module-interface" \
       ONLY_ACTIVE_ARCH=NO
 
-    framework_path="$(find "${derived_data_dir}/Build/Intermediates.noindex/ArchiveIntermediates/${product}/BuildProductsPath" -type d -path "*/PackageFrameworks/${product}.framework" -print -quit)"
+    framework_path="$(find "${derived_data_dir}/Build/Intermediates.noindex/ArchiveIntermediates" -type d -path "*/PackageFrameworks/${product}.framework" -print -quit)"
     if [[ -z "$framework_path" ]]; then
       framework_path="$(find "${archive_path}/Products" -type d -name "${product}.framework" -print -quit)"
     fi
@@ -66,7 +67,7 @@ for product in "${products[@]}"; do
       exit 1
     fi
 
-    module_path="$(find "${derived_data_dir}/Build/Intermediates.noindex/ArchiveIntermediates/${product}/BuildProductsPath" -type d -name "${product}.swiftmodule" -print -quit)"
+    module_path="$(find "${derived_data_dir}/Build/Intermediates.noindex/ArchiveIntermediates" -type d -name "${product}.swiftmodule" -print -quit)"
     if [[ -z "$module_path" ]]; then
       echo "error: ${product}.swiftmodule not found for ${archive_path}" >&2
       find "$derived_data_dir" -maxdepth 8 -name "${product}.swiftmodule" -print >&2
